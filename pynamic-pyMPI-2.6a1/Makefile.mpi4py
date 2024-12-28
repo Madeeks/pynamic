@@ -2,6 +2,9 @@
 
 default: pynamic-mpi4py pynamic-bigexe-mpi4py
 
+# Force shell to be Bash so we can use brace expansion for number ranges and other features
+SHELL := /bin/bash
+
 PYTHON_EXE ?= $(shell which python3)
 NUM_UTILITIES ?= $(shell ls libutility[0123456789]*.so | wc -l)
 NUM_MODULES ?= $(shell ls libmodule[0123456789]*.so | wc -l)
@@ -31,6 +34,7 @@ MODULE_LIBS := $(shell for s in {1..$(NUM_MODULES)}; do echo -lmodule$$(($$s - 1
 BASE_MODULE_LIBS = -lmodulebegin -lmodulefinal
 
 PYNAMICDIR := $(dir $(abspath $(firstword $(MAKEFILE_LIST))))
+LDFLAGS += -Wl,-rpath,$(PYNAMICDIR)
 
 $(MAIN_OBJS): $(MAIN_SOURCES)
 	$(CC) '-DROOT_DIR=$(MAKEFILE_DIR)' -c $(CFLAGS) $(PYTHON_CFLAGS) -o $@ $<
@@ -39,10 +43,10 @@ $(BIGEXE_OBJS): $(BIGEXE_SOURCES) fooN.c
 	$(CC) -DBUILD_PYNAMIC_BIGEXE -c $(CFLAGS) -o $@ $(@:.o=.c)
 
 pynamic-mpi4py: $(MAIN_OBJS) $(MODULE_LIBS) $(UTIL_LIBS)
-	$(CC) -o $@ $(MAIN_OBJS) $(MODULE_LIBS) $(UTIL_LIBS) $(BASE_MODULE_LIBS) -L$(PYNAMICDIR) $(LDFLAGS) $(PYTHON_LDFLAGS)
+	$(CC) -o $@ $(MAIN_OBJS) -L$(PYNAMICDIR) $(LDFLAGS) $(PYTHON_LDFLAGS) $(MODULE_LIBS) $(UTIL_LIBS) $(BASE_MODULE_LIBS)
 
 pynamic-bigexe-mpi4py: $(MAIN_OBJS) $(BIGEXE_OBJS) $(MODULE_LIBS) $(UTIL_LIBS)
-	$(CC) -o $@ $(MAIN_OBJS) $(BIGEXE_OBJS) $(MODULE_LIBS) $(UTIL_LIBS) $(BASE_MODULE_LIBS) -L$(PYNAMICDIR) $(LDFLAGS) $(PYTHON_LDFLAGS)
+	$(CC) -o $@ $(MAIN_OBJS) $(BIGEXE_OBJS) -L$(PYNAMICDIR) $(LDFLAGS) $(PYTHON_LDFLAGS) $(MODULE_LIBS) $(UTIL_LIBS) $(BASE_MODULE_LIBS)
 
 clean:
 	rm -f pynamic-bigexe-mpi4py pynamic-mpi4py $(BIGEXE_OBJS) $(MAIN_OBJS)
