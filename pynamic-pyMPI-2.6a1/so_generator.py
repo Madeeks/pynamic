@@ -377,7 +377,7 @@ def run_so_generator(num_files, avg_num_functions, call_depth, extern, seed, see
 
         file_prefix = 'libutility'
         for i in range(num_utility_files):
-            num_functions = random.randint(avg_num_u_functions/2, avg_num_u_functions*3/2)
+            num_functions = random.randint(int(avg_num_u_functions/2), int(avg_num_u_functions*3/2))
             pynamic_header_file.write('#include "' + file_prefix + str(i) + '.h"\n')
             generate_c_file(file_prefix, i, num_functions, call_depth, extern, utility_enabled, fun_print, name_length)
         results = [pool.apply_async(compile_file, args=(file_prefix+str(i), i, num_utility_files, include_dir, CC)) for i in range(num_utility_files)]
@@ -400,7 +400,7 @@ def run_so_generator(num_files, avg_num_functions, call_depth, extern, seed, see
 
     file_prefix = 'libmodule'
     for i in range(num_files - num_utility_files):
-        num_functions = random.randint(avg_num_functions/2, avg_num_functions*3/2)
+        num_functions = random.randint(int(avg_num_functions/2), int(avg_num_functions*3/2))
         generate_c_file(file_prefix, i, num_functions, call_depth, extern, utility_enabled, fun_print, name_length)
     results = [pool.apply_async(compile_file, args=(file_prefix+str(i), i, num_utility_files, include_dir, CC)) for i in range(num_files - num_utility_files)]
     [p.get() for p in results]
