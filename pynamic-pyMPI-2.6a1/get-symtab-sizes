@@ -25,7 +25,9 @@ else
     sharedlib=`ldd $1 | gawk '{ print $3}' | xargs grep '.so' | grep -i -v "file not found"`
 fi
 
-sharedlib="$1 $sharedlib"
+pynamic_so=`ls *.so | xargs`
+
+sharedlib="$1 $sharedlib $pynamic_so"
 
 rm -f 00imagesize 00debugsectsize 00symtabsize 00strtabsize 00textsize 00datasize
 

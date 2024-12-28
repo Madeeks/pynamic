@@ -221,6 +221,9 @@ def compile_file(file_prefix, num_module_files, num_utility_files, include_dir, 
         command = '%s -g -qmkshrobj' %(CC)
     else:
         command = '%s -g -fPIC -shared' %(CC)
+
+    command += ' -o ' + outfile + ' ' + filename
+
     if file_prefix.find('module') != -1:
         if file_prefix.find('begin') != -1:
             for i in range(num_module_files):
@@ -230,7 +233,6 @@ def compile_file(file_prefix, num_module_files, num_utility_files, include_dir, 
         for i in range(num_utility_files):
             command += ' -lutility' + str(i)
 
-    command += ' -o ' + outfile + ' ' + filename
     run_command(command)
 
     # create .o file
