@@ -228,6 +228,14 @@ def compile_file(file_prefix, num_module_files, num_utility_files, include_dir, 
         if file_prefix.find('begin') != -1:
             for i in range(num_module_files):
                 command += ' -lmodule' + str(i)
+        # Every module except libmodule0 depends on an external function defined
+        # on the previous module library
+        import re
+        match = re.search(r'\d+', file_prefix)
+        if match:
+            module_number = int(match.group(0))
+            if module_number > 0:
+                command += ' -lmodule' + str(module_number-1)
         command += ' -I%s' %(include_dir)
         command += ' -Wl,-rpath=' + cwd + ' -L' + cwd
         for i in range(num_utility_files):
